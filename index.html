@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LoanSmart AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0A0A0F;
+            --card-dark: #0F1117;
+            --gold: #F5C518;
+            --gold-grad: linear-gradient(135deg, #F5C518, #F9E076);
+            --blue: #4F8EF7;
+            --blue-grad: linear-gradient(135deg, #4F8EF7, #326CE5);
+            --red: #FF4444;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A5B1;
+            --border-gold: rgba(245, 197, 24, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #F4F6F8;
+            --card-dark: #FFFFFF;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+            --border-gold: rgba(245, 197, 24, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-primary); 
+            overflow-x: hidden; 
+            min-height: 100vh; 
+            transition: background 0.3s ease, color 0.3s ease; 
+        }
+
+        .screen { 
+            display: none; 
+            opacity: 0; 
+            transition: opacity 0.4s ease; 
+            min-height: 100vh; 
+            width: 100%; 
+        }
+        
+        .screen.active { 
+            display: flex; 
+            opacity: 1; 
+            flex-direction: column; 
+        }
+
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            width: 100%; 
+        }
+
+        .glass-card { 
+            background: var(--card-dark); 
+            border: 1px solid var(--border-gold); 
+            border-radius: 20px; 
+            padding: 24px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15); 
+            transition: all 0.3s ease;
+        }
+
+        .gold-text { 
+            background: var(--gold-grad); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-weight: 700; 
+        }
+
+        .btn { 
+            border: none; 
+            padding: 16px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            width: 100%; 
+            color: white; 
+        }
+
+        .btn-blue { 
+            background: var(--blue-grad); 
+            box-shadow: 0 4px 15px rgba(79, 142, 247, 0.3); 
+        }
+        
+        .btn-blue:active { transform: scale(0.98); }
+
+        /* Screen 1: Login */
+        #screen-1 { justify-content: center; align-items: center; }
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-icon { 
+            width: 80px; 
+            height: 80px; 
+            background: var(--gold-grad); 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin: 0 auto 20px; 
+            box-shadow: 0 0 30px rgba(245, 197, 24, 0.2); 
+        }
+        .logo-icon svg { width: 40px; height: 40px; fill: #0A0A0F; }
+        .login-form { width: 100%; }
+        .input-group { margin-bottom: 24px; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+        .phone-input-wrap { 
+            display: flex; 
+            align-items: center; 
+            background: var(--card-dark); 
+            border: 1px solid var(--border-gold); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: all 0.3s ease; 
+        }
+        .phone-input-wrap:focus-within { border-color: var(--gold); box-shadow: 0 0 10px rgba(245, 197, 24, 0.1); }
+        .phone-prefix { padding: 16px; color: var(--gold); font-weight: 600; background: rgba(245, 197, 24, 0.05); border-right: 1px solid var(--border-gold); }
+        .phone-input { flex: 1; background: transparent; border: none; padding: 16px; color: var(--text-primary); font-size: 1.1rem; outline: none; }
+
+        /* Screen 2: OTP */
+        #screen-2 { justify-content: center; align-items: center; }
+        .otp-header { text-align: center; margin-bottom: 30px; }
+        .otp-subtitle { color: var(--text-secondary); margin-top: 10px; }
+        .otp-boxes { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 30px; }
+        .otp-box { 
+            width: 45px; 
+            height: 55px; 
+            background: var(--card-dark); 
+            border: 1px solid var(--border-gold); 
+            border-radius: 10px; 
+            font-size: 1.5rem; 
+            text-align: center; 
+            color: var(--gold); 
+            outline: none; 
+            transition: all 0.3s ease; 
+        }
+        .otp-box:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(245, 197, 24, 0.2); transform: translateY(-2px); }
+        .timer { text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 20px; }
+        .timer span { color: var(--gold); font-weight: 600; }
+        
+        #otp-success { 
+            display: none; 
+            text-align: center; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        .check-circle { 
+            width: 70px; 
+            height: 70px; 
+            border-radius: 50%; 
+            background: var(--gold-grad); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: #0A0A0F; 
+            font-size: 35px; 
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+        @keyframes scaleIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Screen 3: Main App */
+        .app-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 0; 
+            margin-bottom: 20px; 
+            border-bottom: 1px solid var(--border-gold); 
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .header-logo { 
+            width: 36px; 
+            height: 36px; 
+            background: var(--gold-grad); 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .header-logo svg { width: 18px; height: 18px; fill: #0A0A0F; }
+        .user-phone { color: var(--text-secondary); font-size: 0.9rem; background: rgba(128,128,128,0.1); padding: 5px 12px; border-radius: 20px; font-weight: 500; }
+        
+        .lang-switcher { 
+            display: flex; 
+            gap: 10px; 
+            overflow-x: auto; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+            scrollbar-width: none; 
+        }
+        .lang-switcher::-webkit-scrollbar { display: none; }
+        .lang-pill { 
+            background: var(--card-dark); 
+            border: 1px solid var(--border-gold); 
+            color: var(--text-secondary); 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            cursor: pointer; 
+            white-space: nowrap; 
+            transition: all 0.3s ease; 
+        }
+        .lang-pill.active { 
+            background: var(--gold-grad); 
+            color: #0A0A0F; 
+            border-color: transparent; 
+            font-weight: 600; 
+            box-shadow: 0 4px 10px rgba(245, 197, 24, 0.3); 
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+        .form-select, .form-input { 
+            width: 100%; 
+            background: rgba(128,128,128,0.05); 
+            border: 1px solid var(--border-gold); 
+            padding: 14px; 
+            border-radius: 10px; 
+            color: var(--text-primary); 
+            outline: none; 
+            transition: all 0.3s; 
+            font-size: 0.95rem; 
+        }
+        .form-select:focus, .form-input:focus { border-color: var(--blue); box-shadow: 0 0 10px rgba(79, 142, 247, 0.1); }
+        .form-select option { background: var(--card-dark); color: var(--text-primary); }
+
+        .result-card { margin-top: 25px; display: none; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-status { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 25px; }
+        .status-approved { color: var(--gold); text-shadow: 0 0 20px rgba(245, 197, 24, 0.4); }
+        .status-rejected { color: var(--red); text-shadow: 0 0 20px rgba(255, 68, 68, 0.4); }
+
+        .score-container { margin-bottom: 25px; }
+        .score-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; font-weight: 500; }
+        .score-track { height: 10px; background: rgba(128,128,128,0.2); border-radius: 5px; overflow: hidden; position: relative; }
+        .score-fill { 
+            height: 100%; 
+            width: 0%; 
+            background: var(--blue-grad); 
+            border-radius: 5px; 
+            box-shadow: 0 0 15px var(--blue); 
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .score-threshold { 
+            position: absolute; left: 55%; top: 0; bottom: 0; width: 2px; 
+            background: var(--text-primary); z-index: 2; opacity: 0.5;
+        }
+
+        .factors-title { font-size: 1rem; color: var(--text-secondary); margin-bottom: 15px; font-weight: 500; }
+        .factors-list { list-style: none; margin-bottom: 25px; }
+        .factors-list li { 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px; 
+            margin-bottom: 12px; 
+            font-size: 0.95rem; 
+            color: var(--text-primary); 
+            background: rgba(128,128,128,0.05);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .factors-list li .icon { color: var(--gold); font-size: 1.1rem; }
+
+        .simulator-section { border-top: 1px solid var(--border-gold); padding-top: 25px; }
+        .sim-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: var(--gold); }
+        .slider-group { margin-bottom: 20px; }
+        .slider-info { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 12px; color: var(--text-secondary); }
+        .slider-val { color: var(--blue); font-weight: 600; font-size: 1rem; }
+        
+        input[type="range"] { 
+            width: 100%; 
+            -webkit-appearance: none; 
+            background: rgba(128,128,128,0.2); 
+            height: 6px; 
+            border-radius: 3px; 
+            outline: none; 
+        }
+        input[type="range"]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 50%; 
+            background: var(--blue); 
+            cursor: pointer; 
+            box-shadow: 0 0 10px rgba(79, 142, 247, 0.5); 
+            border: 2px solid var(--card-dark);
+        }
+
+        .theme-toggle { 
+            background: rgba(128,128,128,0.1); 
+            border: 1px solid var(--border-gold); 
+            border-radius: 50%; 
+            width: 36px; 
+            height: 36px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            color: var(--text-primary); 
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover { background: rgba(128,128,128,0.2); }
+
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: LOGIN -->
+    <div id="screen-1" class="screen active">
+        <div class="container">
+            <div class="glass-card" style="padding: 40px 24px;">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h1 class="gold-text" style="font-size: 2rem;" data-i18n="app_name">LoanSmart AI</h1>
+                    <p style="color: var(--text-secondary); margin-top: 8px;" data-i18n="login_sub">Premium Loan Intelligence</p>
+                </div>
+                
+                <form id="login-form" class="login-form">
+                    <div class="input-group">
+                        <label data-i18n="phone_label">Mobile Number</label>
+                        <div class="phone-input-wrap">
+                            <span class="phone-prefix">+91</span>
+                            <input type="tel" id="phone-input" class="phone-input" placeholder="Enter 10-digit number" maxlength="10" required pattern="[0-9]{10}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" data-i18n="send_otp">Send OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: OTP -->
+    <div id="screen-2" class="screen">
+        <div class="container">
+            <div class="glass-card" style="padding: 40px 24px;">
+                <div id="otp-input-section">
+                    <div class="otp-header">
+                        <h2 data-i18n="verify_otp">Verify OTP</h2>
+                        <p class="otp-subtitle"><span data-i18n="otp_sent">OTP sent to +91 ******</span><span id="display-phone-last4"></span></p>
+                    </div>
+                    
+                    <div class="otp-boxes" id="otp-container">
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" autofocus>
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                    </div>
+                    
+                    <button id="verify-btn" class="btn btn-blue" data-i18n="verify_btn">Verify & Continue</button>
+                    
+                    <div class="timer">
+                        <span data-i18n="resend_in">Resend OTP in </span> <span id="countdown">60</span>s
+                    </div>
+                </div>
+
+                <div id="otp-success">
+                    <div class="check-circle">✓</div>
+                    <h2 class="gold-text" data-i18n="auth_success">Authenticated!</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: MAIN APP -->
+    <div id="screen-3" class="screen">
+        <div class="container" style="padding-top: 10px;">
+            
+            <div class="app-header">
+                <div class="header-left">
+                    <div class="header-logo">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h2 class="gold-text" style="font-size: 1.2rem;" data-i18n="app_name">LoanSmart AI</h2>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="user-phone">••• <span id="header-phone"></span></div>
+                    <button class="theme-toggle" id="theme-btn">☀️</button>
+                </div>
+            </div>
+
+            <div class="lang-switcher" id="lang-switcher">
+                <!-- Pills generated by JS -->
+            </div>
+
+            <div class="glass-card" id="form-card">
+                <form id="loan-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="gender">Gender</label>
+                            <select id="f_gender" class="form-select" required>
+                                <option value="male" data-i18n="male">Male</option>
+                                <option value="female" data-i18n="female">Female</option>
+                                <option value="other" data-i18n="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="marital">Marital Status</label>
+                            <select id="f_marital" class="form-select" required>
+                                <option value="yes" data-i18n="married">Married</option>
+                                <option value="no" data-i18n="unmarried">Unmarried</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="education">Education</label>
+                            <select id="f_education" class="form-select" required>
+                                <option value="graduate" data-i18n="graduate">Graduate</option>
+                                <option value="not_graduate" data-i18n="not_graduate">Not Graduate</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="dependents">Dependents</label>
+                            <select id="f_dependents" class="form-select" required>
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3+">3+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="app_inc">Applicant Income (₹)</label>
+                            <input type="number" id="f_app_inc" class="form-input" min="0" value="45000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="co_inc">Co-applicant Income (₹)</label>
+                            <input type="number" id="f_co_inc" class="form-input" min="0" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="loan_amt">Loan Amount (₹)</label>
+                            <input type="number" id="f_loan_amt" class="form-input" min="10000" value="1500000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="loan_term">Loan Term (Months)</label>
+                            <input type="number" id="f_loan_term" class="form-input" min="12" value="360" required>
+                        </div>
+                        <div class="form-group full">
+                            <label class="form-label" data-i18n="credit_hist">Credit History</label>
+                            <select id="f_credit" class="form-select" required>
+                                <option value="1" data-i18n="good_credit">Good (No defaults)</option>
+                                <option value="0" data-i18n="bad_credit">Bad (Defaults present)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="prop_area">Property Area</label>
+                            <select id="f_prop" class="form-select" required>
+                                <option value="urban" data-i18n="urban">Urban</option>
+                                <option value="semiurban" data-i18n="semiurban">Semiurban</option>
+                                <option value="rural" data-i18n="rural">Rural</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="self_emp">Self Employed</label>
+                            <select id="f_self" class="form-select" required>
+                                <option value="no" data-i18n="no">No</option>
+                                <option value="yes" data-i18n="yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-blue" data-i18n="predict_btn">Analyze Loan Approval</button>
+                </form>
+            </div>
+
+            <div class="glass-card result-card" id="result-card">
+                <div class="result-status" id="res-status">Approved</div>
+                
+                <div class="score-container">
+                    <div class="score-header">
+                        <span data-i18n="ai_score">AI Approval Score</span>
+                        <span id="res-score-val" class="gold-text">0/100</span>
+                    </div>
+                    <div class="score-track">
+                        <div class="score-threshold"></div>
+                        <div class="score-fill" id="res-score-fill"></div>
+                    </div>
+                </div>
+
+                <div class="factors-title" data-i18n="key_factors">Top Key Factors</div>
+                <ul class="factors-list" id="res-factors">
+                    <!-- JS populated -->
+                </ul>
+
+                <div class="simulator-section">
+                    <div class="sim-header" data-i18n="sim_title">What-If Simulator</div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-info">
+                            <span data-i18n="app_inc">Applicant Income</span>
+                            <span class="slider-val">₹<span id="sim_inc_val">45,000</span></span>
+                        </div>
+                        <input type="range" id="sim_inc" min="10000" max="300000" step="5000" value="45000">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-info">
+                            <span data-i18n="loan_amt">Loan Amount</span>
+                            <span class="slider-val">₹<span id="sim_loan_val">15,00,000</span></span>
+                        </div>
+                        <input type="range" id="sim_loan" min="100000" max="10000000" step="100000" value="1500000">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- MULTILINGUAL DICTIONARY (11 Languages) ---
+        const langs = [
+            { code: 'en', name: 'English' }, { code: 'hi', name: 'हिन्दी' }, { code: 'ta', name: 'தமிழ்' },
+            { code: 'te', name: 'తెలుగు' }, { code: 'kn', name: 'ಕನ್ನಡ' }, { code: 'ml', name: 'മലയാളം' },
+            { code: 'bn', name: 'বাংলা' }, { code: 'gu', name: 'ગુજરાતી' }, { code: 'mr', name: 'मराठी' },
+            { code: 'pa', name: 'ਪੰਜਾਬੀ' }, { code: 'or', name: 'ଓଡ଼ିଆ' }
+        ];
+
+        const dict = {
+            en: {
+                app_name: "LoanSmart AI", login_sub: "Premium Loan Intelligence", phone_label: "Mobile Number", send_otp: "Send OTP",
+                verify_otp: "Verify OTP", otp_sent: "OTP sent to +91 ", verify_btn: "Verify & Continue", resend_in: "Resend OTP in ", auth_success: "Authenticated!",
+                gender: "Gender", male: "Male", female: "Female", other: "Other", marital: "Marital Status", married: "Married", unmarried: "Unmarried",
+                education: "Education", graduate: "Graduate", not_graduate: "Not Graduate", dependents: "Dependents", app_inc: "Applicant Income (₹)", co_inc: "Co-applicant Income (₹)",
+                loan_amt: "Loan Amount (₹)", loan_term: "Loan Term (Months)", credit_hist: "Credit History", good_credit: "Good (No defaults)", bad_credit: "Bad (Defaults present)",
+                prop_area: "Property Area", urban: "Urban", semiurban: "Semiurban", rural: "Rural", self_emp: "Self Employed", yes: "Yes", no: "No", predict_btn: "Analyze Loan Approval",
+                approved: "Approved", rejected: "Rejected", ai_score: "AI Approval Score", key_factors: "Top 4 Key Factors", sim_title: "What-If Simulator",
+                f_cred_1: "Strong Credit History (+35)", f_cred_0: "Poor Credit History (+0)",
+                f_inc_20: "Excellent Income Level (+20)", f_inc_10: "Good Income Level (+10)", f_inc_5: "Low Income Level (+5)",
+                f_emi_20: "Healthy EMI Ratio (+20)", f_emi_15: "Moderate EMI Ratio (+15)", f_emi_10: "High EMI Ratio (+10)", f_emi_0: "Unsafe EMI Burden (+0)",
+                f_edu_1: "Graduate Education (+10)", f_edu_0: "Not Graduated (+0)",
+                f_prop_u: "Urban Property (+5)", f_prop_s: "Semiurban Property (+3)", f_prop_r: "Rural Property (+0)",
+                f_mar_1: "Married Stability (+5)", f_mar_0: "Unmarried (+0)",
+                f_emp_1: "Self Employed Risk (-5)", f_emp_0: "Salaried Stability (+0)"
+            },
+            hi: {
+                app_name: "लोनस्मार्ट AI", login_sub: "प्रीमियम ऋण बुद्धिमत्ता", phone_label: "मोबाइल नंबर", send_otp: "OTP भेजें",
+                verify_otp: "OTP सत्यापित करें", otp_sent: "OTP +91 पर भेजा गया ", verify_btn: "सत्यापित करें और आगे बढ़ें", resend_in: "OTP पुनः भेजें ", auth_success: "प्रमाणित!",
+                gender: "लिंग", male: "पुरुष", female: "महिला", other: "अन्य", marital: "वैवाहिक स्थिति", married: "विवाहित", unmarried: "अविवाहित",
+                education: "शिक्षा", graduate: "स्नातक", not_graduate: "गैर-स्नातक", dependents: "आश्रित", app_inc: "आवेदक की आय (₹)", co_inc: "सह-आवेदक की आय (₹)",
+                loan_amt: "ऋण राशि (₹)", loan_term: "ऋण अवधि (महीने)", credit_hist: "क्रेडिट इतिहास", good_credit: "अच्छा (कोई डिफ़ॉल्ट नहीं)", bad_credit: "खराब (डिफ़ॉल्ट मौजूद)",
+                prop_area: "संपत्ति क्षेत्र", urban: "शहरी", semiurban: "अर्धशहरी", rural: "ग्रामीण", self_emp: "स्वरोजगार", yes: "हाँ", no: "नहीं", predict_btn: "ऋण अनुमोदन का विश्लेषण करें",
+                approved: "मंजूर", rejected: "अस्वीकृत", ai_score: "AI अनुमोदन स्कोर", key_factors: "शीर्ष 4 मुख्य कारक", sim_title: "क्या-अगर सिम्युलेटर",
+                f_cred_1: "मजबूत क्रेडिट इतिहास (+35)", f_cred_0: "खराब क्रेडिट इतिहास (+0)",
+                f_inc_20: "उत्कृष्ट आय स्तर (+20)", f_inc_10: "अच्छा आय स्तर (+10)", f_inc_5: "कम आय स्तर (+5)",
+                f_emi_20: "स्वस्थ ईएमआई अनुपात (+20)", f_emi_15: "मध्यम ईएमआई अनुपात (+15)", f_emi_10: "उच्च ईएमआई अनुपात (+10)", f_emi_0: "असुरक्षित ईएमआई बोझ (+0)",
+                f_edu_1: "स्नातक शिक्षा (+10)", f_edu_0: "स्नातक नहीं (+0)",
+                f_prop_u: "शहरी संपत्ति (+5)", f_prop_s: "अर्धशहरी संपत्ति (+3)", f_prop_r: "ग्रामीण संपत्ति (+0)",
+                f_mar_1: "विवाहित स्थिरता (+5)", f_mar_0: "अविवाहित (+0)",
+                f_emp_1: "स्वरोजगार जोखिम (-5)", f_emp_0: "वेतनभोगी स्थिरता (+0)"
+            },
+            ta: {
+                app_name: "லோன் ஸ்மார்ட் AI", login_sub: "பிரீமியம் கடன் நுண்ணறிவு", phone_label: "மொபைல் எண்", send_otp: "OTP அனுப்பு",
+                verify_otp: "OTP சரிபார்", otp_sent: "+91 க்கு OTP அனுப்பப்பட்டது ", verify_btn: "சரிபார்த்து தொடரவும்", resend_in: "மீண்டும் அனுப்பு ", auth_success: "அங்கீகரிக்கப்பட்டது!",
+                gender: "பாலினம்", male: "ஆண்", female: "பெண்", other: "மற்றவை", marital: "திருமண நிலை", married: "திருமணமானவர்", unmarried: "திருமணமாகாதவர்",
+                education: "கல்வி", graduate: "பட்டதாரி", not_graduate: "பட்டதாரி அல்லாதவர்", dependents: "சார்ந்திருப்பவர்கள்", app_inc: "விண்ணப்பதாரர் வருமானம் (₹)", co_inc: "இணை விண்ணப்பதாரர் வருமானம் (₹)",
+                loan_amt: "கடன் தொகை (₹)", loan_term: "கடன் காலம் (மாதங்கள்)", credit_hist: "கடன் வரலாறு", good_credit: "நல்லது", bad_credit: "மோசமானது",
+                prop_area: "சொத்து பகுதி", urban: "நகர்ப்புறம்", semiurban: "புறநகர்", rural: "கிராமப்புறம்", self_emp: "சுயதொழில்", yes: "ஆம்", no: "இல்லை", predict_btn: "பகுப்பாய்வு செய்",
+                approved: "அங்கீகரிக்கப்பட்டது", rejected: "நிராகரிக்கப்பட்டது", ai_score: "AI மதிப்பெண்", key_factors: "முக்கிய காரணிகள்", sim_title: "மாற்று சிமுலேட்டர்",
+                f_cred_1: "வலுவான கடன் வரலாறு (+35)", f_cred_0: "மோசமான கடன் வரலாறு (+0)",
+                f_inc_20: "சிறந்த வருமானம் (+20)", f_inc_10: "நல்ல வருமானம் (+10)", f_inc_5: "குறைந்த வருமானம் (+5)",
+                f_emi_20: "ஆரோக்கியமான EMI விகிதம் (+20)", f_emi_15: "மிதமான EMI விகிதம் (+15)", f_emi_10: "அதிக EMI விகிதம் (+10)", f_emi_0: "பாதுகாப்பற்ற EMI சுமை (+0)",
+                f_edu_1: "பட்டதாரி (+10)", f_edu_0: "பட்டதாரி அல்ல (+0)",
+                f_prop_u: "நகர்ப்புற சொத்து (+5)", f_prop_s: "புறநகர் சொத்து (+3)", f_prop_r: "கிராமப்புற சொத்து (+0)",
+                f_mar_1: "திருமண நிலைத்தன்மை (+5)", f_mar_0: "திருமணமாகாதவர் (+0)",
+                f_emp_1: "சுய தொழில் ஆபத்து (-5)", f_emp_0: "சம்பள நிலைத்தன்மை (+0)"
+            },
+            te: {
+                app_name: "లోన్‌స్మార్ట్ AI", login_sub: "ప్రీమియం రుణ ఇంటెలిజెన్స్", phone_label: "మొబైల్ నంబర్", send_otp: "OTP పంపండి",
+                verify_otp: "OTP ధృవీకరించండి", otp_sent: "OTP +91 కి పంపబడింది ", verify_btn: "ధృవీకరించండి & కొనసాగండి", resend_in: "OTP మళ్లీ పంపండి ", auth_success: "ధృవీకరించబడింది!",
+                gender: "లింగం", male: "పురుషుడు", female: "స్త్రీ", other: "ఇతర", marital: "వివాహ స్థితి", married: "వివాహితులు", unmarried: "అవివాహితులు",
+                education: "విద్య", graduate: "గ్రాడ్యుయేట్", not_graduate: "నాన్-గ్రాడ్యుయేట్", dependents: "ఆధారపడినవారు", app_inc: "దరఖాస్తుదారు ఆదాయం (₹)", co_inc: "సహ-దరఖాస్తుదారు ఆదాయం (₹)",
+                loan_amt: "రుణ మొత్తం (₹)", loan_term: "కాలపరిమితి (నెలలు)", credit_hist: "క్రెడిట్ చరిత్ర", good_credit: "మంచిది", bad_credit: "చెడ్డది",
+                prop_area: "ఆస్తి ప్రాంతం", urban: "పట్టణ", semiurban: "సెమీ-పట్టణ", rural: "గ్రామీణ", self_emp: "స్వయం ఉపాధి", yes: "అవును", no: "కాదు", predict_btn: "విశ్లేషించండి",
+                approved: "ఆమోదించబడింది", rejected: "తిరస్కరించబడింది", ai_score: "AI ఆమోదం స్కోర్", key_factors: "ప్రధాన కారకాలు", sim_title: "వాట్-ఇఫ్ సిమ్యులేటర్",
+                f_cred_1: "బలమైన క్రెడిట్ చరిత్ర (+35)", f_cred_0: "పేలవమైన క్రెడిట్ చరిత్ర (+0)",
+                f_inc_20: "అద్భుతమైన ఆదాయం (+20)", f_inc_10: "మంచి ఆదాయం (+10)", f_inc_5: "తక్కువ ఆదాయం (+5)",
+                f_emi_20: "ఆరోగ్యకరమైన EMI నిష్పత్తి (+20)", f_emi_15: "మితమైన EMI నిష్పత్తి (+15)", f_emi_10: "అధిక EMI నిష్పత్తి (+10)", f_emi_0: "అసురక్షిత EMI భారం (+0)",
+                f_edu_1: "గ్రాడ్యుయేట్ (+10)", f_edu_0: "గ్రాడ్యుయేట్ కాదు (+0)",
+                f_prop_u: "పట్టణ ఆస్తి (+5)", f_prop_s: "సెమీ-పట్టణ ఆస్తి (+3)", f_prop_r: "గ్రామీణ ఆస్తి (+0)",
+                f_mar_1: "వివాహ స్థిరత్వం (+5)", f_mar_0: "అవివాహితులు (+0)",
+                f_emp_1: "స్వయం ఉపాధి ప్రమాదం (-5)", f_emp_0: "జీతం స్థిరత్వం (+0)"
+            },
+            kn: {
+                app_name: "ಲೋನ್‌ಸ್ಮಾರ್ಟ್ AI", login_sub: "ಪ್ರೀಮಿಯಂ ಸಾಲದ ಬುದ್ಧಿಮತ್ತೆ", phone_label: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ", send_otp: "OTP ಕಳುಹಿಸಿ",
+                verify_otp: "OTP ಪರಿಶೀಲಿಸಿ", otp_sent: "+91 ಗೆ OTP ಕಳುಹಿಸಲಾಗಿದೆ ", verify_btn: "ಪರಿಶೀಲಿಸಿ", resend_in: "ಮರುಕಳುಹಿಸಿ ", auth_success: "ದೃಢೀಕರಿಸಲಾಗಿದೆ!",
+                gender: "ಲಿಂಗ", male: "ಪುರುಷ", female: "ಮಹಿಳೆ", other: "ಇತರ", marital: "ವೈವಾಹಿಕ ಸ್ಥಿತಿ", married: "ವಿವಾಹಿತ", unmarried: "ಅವಿವಾಹಿತ",
+                education: "ಶಿಕ್ಷಣ", graduate: "ಪದವೀಧರ", not_graduate: "ಪದವೀಧರರಲ್ಲ", dependents: "ಅವಲಂಬಿತರು", app_inc: "ಅರ್ಜಿದಾರರ ಆದಾಯ (₹)", co_inc: "ಸಹ-ಅರ್ಜಿದಾರರ ಆದಾಯ (₹)",
+                loan_amt: "ಸಾಲದ ಮೊತ್ತ (₹)", loan_term: "ಅವಧಿ (ತಿಂಗಳುಗಳು)", credit_hist: "ಕ್ರೆಡಿಟ್ ಇತಿಹಾಸ", good_credit: "ಉತ್ತಮ", bad_credit: "ಕೆಟ್ಟ",
+                prop_area: "ಆಸ್ತಿ ಪ್ರದೇಶ", urban: "ನಗರ", semiurban: "ಅರೆ ನಗರ", rural: "ಗ್ರಾಮೀಣ", self_emp: "ಸ್ವಯಂ ಉದ್ಯೋಗಿ", yes: "ಹೌದು", no: "ಇಲ್ಲ", predict_btn: "ವಿಶ್ಲೇಷಿಸಿ",
+                approved: "ಮಂಜೂರಾಗಿದೆ", rejected: "ತಿರಸ್ಕರಿಸಲಾಗಿದೆ", ai_score: "AI ಸ್ಕೋರ್", key_factors: "ಮುಖ್ಯ ಅಂಶಗಳು", sim_title: "ಸಿಮ್ಯುಲೇಟರ್",
+                f_cred_1: "ಬಲವಾದ ಕ್ರೆಡಿಟ್ ಇತಿಹಾಸ (+35)", f_cred_0: "ಕಳಪೆ ಕ್ರೆಡಿಟ್ ಇತಿಹಾಸ (+0)",
+                f_inc_20: "ಉತ್ತಮ ಆದಾಯ (+20)", f_inc_10: "ಉತ್ತಮ ಆದಾಯ (+10)", f_inc_5: "ಕಡಿಮೆ ಆದಾಯ (+5)",
+                f_emi_20: "ಆರೋಗ್ಯಕರ EMI ಅನುಪಾತ (+20)", f_emi_15: "ಮಧ್ಯಮ EMI ಅನುಪಾತ (+15)", f_emi_10: "ಹೆಚ್ಚಿನ EMI ಅನುಪಾತ (+10)", f_emi_0: "ಅಸುರಕ್ಷಿತ EMI ಹೊರೆ (+0)",
+                f_edu_1: "ಪದವೀಧರ (+10)", f_edu_0: "ಪದವೀಧರರಲ್ಲ (+0)",
+                f_prop_u: "ನಗರ ಆಸ್ತಿ (+5)", f_prop_s: "ಅರೆ ನಗರ ಆಸ್ತಿ (+3)", f_prop_r: "ಗ್ರಾಮೀಣ ಆಸ್ತಿ (+0)",
+                f_mar_1: "ವಿವಾಹಿತ ಸ್ಥಿರತೆ (+5)", f_mar_0: "ಅವಿವಾಹಿತ (+0)",
+                f_emp_1: "ಸ್ವಯಂ ಉದ್ಯೋಗದ ಅಪಾಯ (-5)", f_emp_0: "ವೇತನದ ಸ್ಥಿರತೆ (+0)"
+            },
+            ml: {
+                app_name: "ലോൺസ്മാർട്ട് AI", login_sub: "പ്രീമിയം ലോൺ ഇൻ്റലിജൻസ്", phone_label: "മൊബൈൽ നമ്പർ", send_otp: "OTP അയയ്ക്കുക",
+                verify_otp: "OTP പരിശോധിക്കുക", otp_sent: "+91 ലേക്ക് OTP അയച്ചു ", verify_btn: "പരിശോധിക്കുക", resend_in: "വീണ്ടും അയയ്ക്കുക ", auth_success: "അംഗീകരിച്ചു!",
+                gender: "ലിംഗഭേദം", male: "പുരുഷൻ", female: "സ്ത്രീ", other: "മറ്റ്", marital: "വിവാഹാവസ്ഥ", married: "വിവാഹിതൻ", unmarried: "അവിവാഹിതൻ",
+                education: "വിദ്യാഭ്യാസം", graduate: "ബിരുദധാരി", not_graduate: "ബിരുദധാരിയല്ല", dependents: "ആശ്രിതർ", app_inc: "വരുമാനം (₹)", co_inc: "സഹ-അപേക്ഷകന്റെ വരുമാനം (₹)",
+                loan_amt: "ലോൺ തുക (₹)", loan_term: "കാലാവധി (മാസങ്ങൾ)", credit_hist: "ക്രെഡിറ്റ് ചരിത്രം", good_credit: "നല്ലത്", bad_credit: "മോശം",
+                prop_area: "വസ്തുവകകൾ", urban: "നഗരം", semiurban: "അർദ്ധനഗരം", rural: "ഗ്രാമം", self_emp: "സ്വയം തൊഴിൽ", yes: "അതെ", no: "അല്ല", predict_btn: "വിശകലനം ചെയ്യുക",
+                approved: "പാസായി", rejected: "നിരസിച്ചു", ai_score: "AI സ്കോർ", key_factors: "പ്രധാന ഘടകങ്ങൾ", sim_title: "സിമുലേറ്റർ",
+                f_cred_1: "നല്ല ക്രെഡിറ്റ് ചരിത്രം (+35)", f_cred_0: "മോശം ക്രെഡിറ്റ് ചരിത്രം (+0)",
+                f_inc_20: "മികച്ച വരുമാനം (+20)", f_inc_10: "നല്ല വരുമാനം (+10)", f_inc_5: "കുറഞ്ഞ വരുമാനം (+5)",
+                f_emi_20: "നല്ല EMI അനുപാതം (+20)", f_emi_15: "മിതമായ EMI അനുപാതം (+15)", f_emi_10: "ഉയർന്ന EMI അനുപാതം (+10)", f_emi_0: "സുരക്ഷിതമല്ലാത്ത EMI ഭാരം (+0)",
+                f_edu_1: "ബിരുദധാരി (+10)", f_edu_0: "ബിരുദധാരിയല്ല (+0)",
+                f_prop_u: "നഗര വസ്തു (+5)", f_prop_s: "അർദ്ധനഗര വസ്തു (+3)", f_prop_r: "ഗ്രാമീണ വസ്തു (+0)",
+                f_mar_1: "വിവാഹിത സ്ഥിരത (+5)", f_mar_0: "അവിവാഹിതൻ (+0)",
+                f_emp_1: "സ്വയം തൊഴിൽ അപകടസാധ്യത (-5)", f_emp_0: "ശമ്പള സ്ഥിരത (+0)"
+            },
+            bn: {
+                app_name: "লোনস্মার্ট এআই", login_sub: "প্রিমিয়াম লোন ইন্টেলিজেন্স", phone_label: "মোবাইল নম্বর", send_otp: "ওটিপি পাঠান",
+                verify_otp: "ওটিপি যাচাই করুন", otp_sent: "+91 এ ওটিপি পাঠানো হয়েছে ", verify_btn: "যাচাই করুন", resend_in: "আবার পাঠান ", auth_success: "যাচাইকৃত!",
+                gender: "লিঙ্গ", male: "পুরুষ", female: "মহিলা", other: "অন্যান্য", marital: "বৈবাহিক অবস্থা", married: "বিবাহিত", unmarried: "অবিবাহিত",
+                education: "শিক্ষা", graduate: "স্নাতক", not_graduate: "স্নাতক নয়", dependents: "নির্ভরশীল", app_inc: "আয় (₹)", co_inc: "সহ-আবেদনকারীর আয় (₹)",
+                loan_amt: "ঋণের পরিমাণ (₹)", loan_term: "মেয়াদ (মাস)", credit_hist: "ক্রেডিট ইতিহাস", good_credit: "ভালো", bad_credit: "খারাপ",
+                prop_area: "সম্পত্তি এলাকা", urban: "শহুরে", semiurban: "আধা-শহুরে", rural: "গ্রামীণ", self_emp: "স্বনিযুক্ত", yes: "হ্যাঁ", no: "না", predict_btn: "বিশ্লেষণ করুন",
+                approved: "অনুমোদিত", rejected: "প্রত্যাখ্যাত", ai_score: "এআই স্কোর", key_factors: "মূল কারণ", sim_title: "সিমুলেটর",
+                f_cred_1: "শক্তিশালী ক্রেডিট ইতিহাস (+35)", f_cred_0: "দুর্বল ক্রেডিট ইতিহাস (+0)",
+                f_inc_20: "চমৎকার আয় (+20)", f_inc_10: "ভালো আয় (+10)", f_inc_5: "নিম্ন আয় (+5)",
+                f_emi_20: "স্বাস্থ্যকর ইএমআই অনুপাত (+20)", f_emi_15: "মাঝারি ইএমআই অনুপাত (+15)", f_emi_10: "উচ্চ ইএমআই অনুপাত (+10)", f_emi_0: "অনিরাপদ ইএমআই বোঝা (+0)",
+                f_edu_1: "স্নাতক (+10)", f_edu_0: "স্নাতক নয় (+0)",
+                f_prop_u: "শহুরে সম্পত্তি (+5)", f_prop_s: "আধা-শহুরে সম্পত্তি (+3)", f_prop_r: "গ্রামীণ সম্পত্তি (+0)",
+                f_mar_1: "বিবাহিত স্থিতিশীলতা (+5)", f_mar_0: "অবিবাহিত (+0)",
+                f_emp_1: "স্ব-নিযুক্ত ঝুঁকি (-5)", f_emp_0: "বেতনভুক্ত স্থিতিশীলতা (+0)"
+            },
+            gu: {
+                app_name: "લોનસ્માર્ટ AI", login_sub: "પ્રીમિયમ લોન ઇન્ટેલિજન્સ", phone_label: "મોબાઇલ નંબર", send_otp: "OTP મોકલો",
+                verify_otp: "OTP ચકાસો", otp_sent: "+91 પર OTP મોકલ્યો ", verify_btn: "ચકાસો", resend_in: "ફરી મોકલો ", auth_success: "પ્રમાણિત!",
+                gender: "લિંગ", male: "પુરુષ", female: "સ્ત્રી", other: "અન્ય", marital: "વૈવાહિક સ્થિતિ", married: "પરિણીત", unmarried: "અપરિણીત",
+                education: "શિક્ષણ", graduate: "સ્નાતક", not_graduate: "સ્નાતક નથી", dependents: "આશ્રિતો", app_inc: "આવક (₹)", co_inc: "સહ-અરજદારની આવક (₹)",
+                loan_amt: "લોનની રકમ (₹)", loan_term: "મુદત (મહિના)", credit_hist: "ક્રેડિટ ઇતિહાસ", good_credit: "સારું", bad_credit: "ખરાબ",
+                prop_area: "મિલકત વિસ્તાર", urban: "શહેરી", semiurban: "અર્ધશહેરી", rural: "ગ્રામીણ", self_emp: "સ્વરોજગાર", yes: "હા", no: "ના", predict_btn: "વિશ્લેષણ કરો",
+                approved: "મંજૂર", rejected: "નામંજૂર", ai_score: "AI સ્કોર", key_factors: "મુખ્ય પરિબળો", sim_title: "સિમ્યુલેટર",
+                f_cred_1: "મજબૂત ક્રેડિટ ઇતિહાસ (+35)", f_cred_0: "નબળો ક્રેડિટ ઇતિહાસ (+0)",
+                f_inc_20: "શ્રેષ્ઠ આવક (+20)", f_inc_10: "સારી આવક (+10)", f_inc_5: "ઓછી આવક (+5)",
+                f_emi_20: "સ્વસ્થ EMI ગુણોત્તર (+20)", f_emi_15: "મધ્યમ EMI ગુણોત્તર (+15)", f_emi_10: "ઉચ્ચ EMI ગુણોત્તર (+10)", f_emi_0: "અસુરક્ષિત EMI બોજ (+0)",
+                f_edu_1: "સ્નાતક (+10)", f_edu_0: "સ્નાતક નથી (+0)",
+                f_prop_u: "શહેરી મિલકત (+5)", f_prop_s: "અર્ધ-શહેરી મિલકત (+3)", f_prop_r: "ગ્રામીણ મિલકત (+0)",
+                f_mar_1: "લગ્ન સ્થિરતા (+5)", f_mar_0: "અપરિણીત (+0)",
+                f_emp_1: "સ્વ-રોજગાર જોખમ (-5)", f_emp_0: "પગારદાર સ્થિરતા (+0)"
+            },
+            mr: {
+                app_name: "लोनस्मार्ट AI", login_sub: "प्रीमियम लोन इंटेलिजन्स", phone_label: "मोबाईल क्रमांक", send_otp: "OTP पाठवा",
+                verify_otp: "OTP तपासा", otp_sent: "+91 वर OTP पाठवला ", verify_btn: "तपासा", resend_in: "पुन्हा पाठवा ", auth_success: "प्रमाणित!",
+                gender: "लिंग", male: "पुरुष", female: "स्त्री", other: "इतर", marital: "वैवाहिक स्थिती", married: "विवाहित", unmarried: "अविवाहित",
+                education: "शिक्षण", graduate: "पदवीधर", not_graduate: "पदवीधर नाही", dependents: "अवलंबून असलेले", app_inc: "उत्पन्न (₹)", co_inc: "सह-अर्जदाराचे उत्पन्न (₹)",
+                loan_amt: "कर्जाची रक्कम (₹)", loan_term: "मुदत (महिने)", credit_hist: "क्रेडिट इतिहास", good_credit: "चांगला", bad_credit: "खराब",
+                prop_area: "मालमत्ता क्षेत्र", urban: "शहरी", semiurban: "निमशहरी", rural: "ग्रामीण", self_emp: "स्वयंरोजगार", yes: "होय", no: "नाही", predict_btn: "विश्लेषण करा",
+                approved: "मंजूर", rejected: "नामंजूर", ai_score: "AI स्कोअर", key_factors: "मुख्य घटक", sim_title: "सिम्युलेटर",
+                f_cred_1: "मजबूत क्रेडिट इतिहास (+35)", f_cred_0: "खराब क्रेडिट इतिहास (+0)",
+                f_inc_20: "उत्कृष्ट उत्पन्न (+20)", f_inc_10: "चांगले उत्पन्न (+10)", f_inc_5: "कमी उत्पन्न (+5)",
+                f_emi_20: "निरोगी EMI गुणोत्तर (+20)", f_emi_15: "मध्यम EMI गुणोत्तर (+15)", f_emi_10: "उच्च EMI गुणोत्तर (+10)", f_emi_0: "असुरक्षित EMI ओझे (+0)",
+                f_edu_1: "पदवीधर (+10)", f_edu_0: "पदवीधर नाही (+0)",
+                f_prop_u: "शहरी मालमत्ता (+5)", f_prop_s: "निमशहरी मालमत्ता (+3)", f_prop_r: "ग्रामीण मालमत्ता (+0)",
+                f_mar_1: "वैवाहिक स्थिरता (+5)", f_mar_0: "अविवाहित (+0)",
+                f_emp_1: "स्वयंरोजगार जोखीम (-5)", f_emp_0: "पगारदार स्थिरता (+0)"
+            },
+            pa: {
+                app_name: "ਲੋਨਸਮਾਰਟ AI", login_sub: "ਪ੍ਰੀਮੀਅਮ ਲੋਨ ਇੰਟੈਲੀਜੈਂਸ", phone_label: "ਮੋਬਾਈਲ ਨੰਬਰ", send_otp: "OTP ਭੇਜੋ",
+                verify_otp: "OTP ਪ੍ਰਮਾਣਿਤ ਕਰੋ", otp_sent: "+91 'ਤੇ OTP ਭੇਜਿਆ ", verify_btn: "ਪ੍ਰਮਾਣਿਤ ਕਰੋ", resend_in: "ਦੁਬਾਰਾ ਭੇਜੋ ", auth_success: "ਪ੍ਰਮਾਣਿਤ!",
+                gender: "ਲਿੰਗ", male: "ਮਰਦ", female: "ਔਰਤ", other: "ਹੋਰ", marital: "ਵਿਆਹੁਤਾ ਸਥਿਤੀ", married: "ਵਿਆਹਿਆ", unmarried: "ਅਣਵਿਆਹਿਆ",
+                education: "ਸਿੱਖਿਆ", graduate: "ਗ੍ਰੈਜੂਏਟ", not_graduate: "ਗੈਰ-ਗ੍ਰੈਜੂਏਟ", dependents: "ਨਿਰਭਰ", app_inc: "ਆਮਦਨ (₹)", co_inc: "ਸਹਿ-ਬਿਨੈਕਾਰ ਦੀ ਆਮਦਨ (₹)",
+                loan_amt: "ਕਰਜ਼ੇ ਦੀ ਰਕਮ (₹)", loan_term: "ਮਿਆਦ (ਮਹੀਨੇ)", credit_hist: "ਕ੍ਰੈਡਿਟ ਇਤਿਹਾਸ", good_credit: "ਚੰਗਾ", bad_credit: "ਮਾੜਾ",
+                prop_area: "ਜਾਇਦਾਦ ਖੇਤਰ", urban: "ਸ਼ਹਿਰੀ", semiurban: "ਅਰਧ-ਸ਼ਹਿਰੀ", rural: "ਪੇਂਡੂ", self_emp: "ਸਵੈ-ਰੁਜ਼ਗਾਰ", yes: "ਹਾਂ", no: "ਨਹੀਂ", predict_btn: "ਵਿਸ਼ਲੇਸ਼ਣ ਕਰੋ",
+                approved: "ਮਨਜ਼ੂਰ", rejected: "ਰੱਦ", ai_score: "AI ਸਕੋਰ", key_factors: "ਮੁੱਖ ਕਾਰਕ", sim_title: "ਸਿਮੂਲੇਟਰ",
+                f_cred_1: "ਮਜ਼ਬੂਤ ਕ੍ਰੈਡਿਟ ਇਤਿਹਾਸ (+35)", f_cred_0: "ਮਾੜਾ ਕ੍ਰੈਡਿਟ ਇਤਿਹਾਸ (+0)",
+                f_inc_20: "ਸ਼ਾਨਦਾਰ ਆਮਦਨ (+20)", f_inc_10: "ਚੰਗੀ ਆਮਦਨ (+10)", f_inc_5: "ਘੱਟ ਆਮਦਨ (+5)",
+                f_emi_20: "ਸਿਹਤਮੰਦ EMI ਅਨੁਪਾਤ (+20)", f_emi_15: "ਦਰਮਿਆਨਾ EMI ਅਨੁਪਾਤ (+15)", f_emi_10: "ਉੱਚ EMI ਅਨੁਪਾਤ (+10)", f_emi_0: "ਅਸੁਰੱਖਿਅਤ EMI ਬੋਝ (+0)",
+                f_edu_1: "ਗ੍ਰੈਜੂਏਟ (+10)", f_edu_0: "ਗ੍ਰੈਜੂਏਟ ਨਹੀਂ (+0)",
+                f_prop_u: "ਸ਼ਹਿਰੀ ਜਾਇਦਾਦ (+5)", f_prop_s: "ਅਰਧ-ਸ਼ਹਿਰੀ ਜਾਇਦਾਦ (+3)", f_prop_r: "ਪੇਂਡੂ ਜਾਇਦਾਦ (+0)",
+                f_mar_1: "ਵਿਆਹੁਤਾ ਸਥਿਰਤਾ (+5)", f_mar_0: "ਅਣਵਿਆਹਿਆ (+0)",
+                f_emp_1: "ਸਵੈ-ਰੁਜ਼ਗਾਰ ਜੋਖਮ (-5)", f_emp_0: "ਤਨਖਾਹਦਾਰ ਸਥਿਰਤਾ (+0)"
+            },
+            or: {
+                app_name: "ଲୋନସ୍ମାର୍ଟ AI", login_sub: "ପ୍ରିମିୟମ୍ ଲୋନ୍ ଇଣ୍ଟେଲିଜେନ୍ସ", phone_label: "ମୋବାଇଲ୍ ନମ୍ବର", send_otp: "OTP ପଠାନ୍ତୁ",
+                verify_otp: "OTP ଯାଞ୍ଚ କରନ୍ତୁ", otp_sent: "+91 କୁ OTP ପଠାଗଲା ", verify_btn: "ଯାଞ୍ଚ କରନ୍ତୁ", resend_in: "ପୁନର୍ବାର ପଠାନ୍ତୁ ", auth_success: "ପ୍ରମାଣିତ!",
+                gender: "ଲିଙ୍ଗ", male: "ପୁରୁଷ", female: "ମହିଳା", other: "ଅନ୍ୟ", marital: "ବୈବାହିକ ସ୍ଥିତି", married: "ବିବାହିତ", unmarried: "ଅବିବାହିତ",
+                education: "ଶିକ୍ଷା", graduate: "ସ୍ନାତକ", not_graduate: "ସ୍ନାତକ ନୁହଁନ୍ତି", dependents: "ନିର୍ଭରଶୀଳ", app_inc: "ଆୟ (₹)", co_inc: "ସହ-ଆବେଦନକାରୀ ଆୟ (₹)",
+                loan_amt: "ଋଣ ପରିମାଣ (₹)", loan_term: "ଅବଧି (ମାସ)", credit_hist: "କ୍ରେଡିଟ୍ ଇତିହାସ", good_credit: "ଭଲ", bad_credit: "ଖରାପ",
+                prop_area: "ସମ୍ପତ୍ତି କ୍ଷେତ୍ର", urban: "ସହରୀ", semiurban: "ଅର୍ଦ୍ଧ-ସହରୀ", rural: "ଗ୍ରାମୀଣ", self_emp: "ଆତ୍ମନିର୍ଭରଶୀଳ", yes: "ହଁ", no: "ନା", predict_btn: "ବିଶ୍ଳେଷଣ କରନ୍ତୁ",
+                approved: "ଅନୁମୋଦିତ", rejected: "ପ୍ରତ୍ୟାଖ୍ୟାତ", ai_score: "AI ସ୍କୋର", key_factors: "ମୁଖ୍ୟ କାରଣଗୁଡିକ", sim_title: "ସିମୁଲେଟର",
+                f_cred_1: "ମଜବୁତ କ୍ରେଡିଟ୍ ଇତିହାସ (+35)", f_cred_0: "ଖରାପ କ୍ରେଡିଟ୍ ଇତିହାସ (+0)",
+                f_inc_20: "ଉତ୍କୃଷ୍ଟ ଆୟ (+20)", f_inc_10: "ଭଲ ଆୟ (+10)", f_inc_5: "କମ୍ ଆୟ (+5)",
+                f_emi_20: "ସୁସ୍ଥ EMI ଅନୁପାତ (+20)", f_emi_15: "ମଧ୍ୟମ EMI ଅନୁପାତ (+15)", f_emi_10: "ଉଚ୍ଚ EMI ଅନୁପାତ (+10)", f_emi_0: "ଅସୁରକ୍ଷିତ EMI ବୋଝ (+0)",
+                f_edu_1: "ସ୍ନାତକ (+10)", f_edu_0: "ସ୍ନାତକ ନୁହେଁ (+0)",
+                f_prop_u: "ସହରୀ ସମ୍ପତ୍ତି (+5)", f_prop_s: "ଅର୍ଦ୍ଧ-ସହରୀ ସମ୍ପତ୍ତି (+3)", f_prop_r: "ଗ୍ରାମୀଣ ସମ୍ପତ୍ତି (+0)",
+                f_mar_1: "ବିବାହିତ ସ୍ଥିରତା (+5)", f_mar_0: "ଅବିବାହିତ (+0)",
+                f_emp_1: "ଆତ୍ମ-ନିଯୁକ୍ତି ବିପଦ (-5)", f_emp_0: "ଦରମାପ୍ରାପ୍ତ ସ୍ଥିରତା (+0)"
+            }
+        };
+
+        let currentLang = 'en';
+        let userPhone = '';
+        let timerInterval;
+
+        // --- DOM ELEMENTS ---
+        const screens = [document.getElementById('screen-1'), document.getElementById('screen-2'), document.getElementById('screen-3')];
+        const loginForm = document.getElementById('login-form');
+        const phoneInput = document.getElementById('phone-input');
+        const displayPhone = document.getElementById('display-phone-last4');
+        const otpBoxes = document.querySelectorAll('.otp-box');
+        const verifyBtn = document.getElementById('verify-btn');
+        const countdownEl = document.getElementById('countdown');
+        const langSwitcher = document.getElementById('lang-switcher');
+        const headerPhone = document.getElementById('header-phone');
+        const themeBtn = document.getElementById('theme-btn');
+        const loanForm = document.getElementById('loan-form');
+        
+        // Form & Simulator
+        const simInc = document.getElementById('sim_inc');
+        const simLoan = document.getElementById('sim_loan');
+        const fAppInc = document.getElementById('f_app_inc');
+        const fLoanAmt = document.getElementById('f_loan_amt');
+
+        // --- NAVIGATION & INIT ---
+        function showScreen(index) {
+            screens.forEach((s, i) => {
+                if(i === index) {
+                    s.style.display = 'flex';
+                    setTimeout(() => s.style.opacity = '1', 50);
+                    s.classList.add('active');
+                } else {
+                    s.style.opacity = '0';
+                    s.classList.remove('active');
+                    setTimeout(() => s.style.display = 'none', 400);
+                }
+            });
+        }
+
+        // --- SCREEN 1: LOGIN ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if(phoneInput.value.length === 10) {
+                userPhone = phoneInput.value;
+                displayPhone.textContent = userPhone.substring(6);
+                headerPhone.textContent = userPhone.substring(6);
+                showScreen(1);
+                startTimer();
+                otpBoxes[0].focus();
+            }
+        });
+
+        // --- SCREEN 2: OTP ---
+        otpBoxes.forEach((box, i) => {
+            box.addEventListener('input', function() {
+                if(this.value.length === 1 && i < 5) otpBoxes[i+1].focus();
+            });
+            box.addEventListener('keydown', function(e) {
+                if(e.key === 'Backspace' && this.value === '' && i > 0) otpBoxes[i-1].focus();
+            });
+        });
+
+        function startTimer() {
+            let timeLeft = 60;
+            countdownEl.textContent = timeLeft;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                countdownEl.textContent = timeLeft;
+                if(timeLeft <= 0) clearInterval(timerInterval);
+            }, 1000);
+        }
+
+        verifyBtn.addEventListener('click', () => {
+            const otp = Array.from(otpBoxes).map(b => b.value).join('');
+            if(otp.length === 6) {
+                document.getElementById('otp-input-section').style.display = 'none';
+                document.getElementById('otp-success').style.display = 'flex';
+                setTimeout(() => {
+                    showScreen(2);
+                    initMainApp();
+                }, 1500);
+            }
+        });
+
+        // --- SCREEN 3: MAIN APP ---
+        function initMainApp() {
+            // Setup Languages
+            langs.forEach(lang => {
+                const btn = document.createElement('button');
+                btn.className = `lang-pill ${lang.code === 'en' ? 'active' : ''}`;
+                btn.textContent = lang.name;
+                btn.onclick = () => setLanguage(lang.code, btn);
+                langSwitcher.appendChild(btn);
+            });
+            setLanguage('en');
+        }
+
+        function setLanguage(code, btnEl = null) {
+            currentLang = code;
+            if(btnEl) {
+                document.querySelectorAll('.lang-pill').forEach(b => b.classList.remove('active'));
+                btnEl.classList.add('active');
+            }
+            const d = dict[code] || dict['en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(d[key]) {
+                    if (el.tagName === 'OPTION') {
+                        // Some options might have mixed text, just replace innerText
+                        el.innerText = d[key];
+                    } else {
+                        el.innerText = d[key];
+                    }
+                }
+            });
+            // Update results if visible
+            if(document.getElementById('result-card').style.display === 'block') {
+                calculateScore();
+            }
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const root = document.documentElement;
+            if(root.getAttribute('data-theme') === 'dark') {
+                root.setAttribute('data-theme', 'light');
+                themeBtn.textContent = '🌙';
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️';
+            }
+        });
+
+        // --- SCORING ALGORITHM ---
+        function calculateScore() {
+            const data = {
+                appInc: parseFloat(document.getElementById('f_app_inc').value) || 0,
+                coInc: parseFloat(document.getElementById('f_co_inc').value) || 0,
+                loanAmt: parseFloat(document.getElementById('f_loan_amt').value) || 0,
+                loanTerm: parseFloat(document.getElementById('f_loan_term').value) || 1,
+                credit: document.getElementById('f_credit').value,
+                edu: document.getElementById('f_education').value,
+                prop: document.getElementById('f_prop').value,
+                mar: document.getElementById('f_marital').value,
+                self: document.getElementById('f_self').value
+            };
+
+            let score = 0;
+            let factors = []; // { key, pts }
+
+            // 1. Credit History (35)
+            if(data.credit === '1') { score += 35; factors.push({key: 'f_cred_1', pts: 35}); }
+            else { factors.push({key: 'f_cred_0', pts: -35}); } // negative for sorting importance
+
+            // 2. Income (20)
+            const totInc = data.appInc + data.coInc;
+            if(totInc > 100000) { score += 20; factors.push({key: 'f_inc_20', pts: 20}); }
+            else if(totInc > 50000) { score += 10; factors.push({key: 'f_inc_10', pts: 10}); }
+            else { score += 5; factors.push({key: 'f_inc_5', pts: 5}); }
+
+            // 3. EMI Ratio (20)
+            const r = 0.09 / 12;
+            const n = data.loanTerm;
+            const p = data.loanAmt;
+            const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            const emiRatio = (emi / totInc) * 100;
+            
+            if(emiRatio < 30) { score += 20; factors.push({key: 'f_emi_20', pts: 20}); }
+            else if(emiRatio < 40) { score += 15; factors.push({key: 'f_emi_15', pts: 15}); }
+            else if(emiRatio < 50) { score += 10; factors.push({key: 'f_emi_10', pts: 10}); }
+            else { factors.push({key: 'f_emi_0', pts: -20}); }
+
+            // 4. Education (10)
+            if(data.edu === 'graduate') { score += 10; factors.push({key: 'f_edu_1', pts: 10}); }
+            else { factors.push({key: 'f_edu_0', pts: 0}); }
+
+            // 5. Property (5)
+            if(data.prop === 'urban') { score += 5; factors.push({key: 'f_prop_u', pts: 5}); }
+            else if(data.prop === 'semiurban') { score += 3; factors.push({key: 'f_prop_s', pts: 3}); }
+            else { factors.push({key: 'f_prop_r', pts: 0}); }
+
+            // 6. Marital (5)
+            if(data.mar === 'yes') { score += 5; factors.push({key: 'f_mar_1', pts: 5}); }
+            else { factors.push({key: 'f_mar_0', pts: 0}); }
+
+            // 7. Self Employed (-5)
+            if(data.self === 'yes') { score -= 5; factors.push({key: 'f_emp_1', pts: -5}); }
+            else { factors.push({key: 'f_emp_0', pts: 0}); }
+
+            // Render
+            renderResult(score, factors);
+        }
+
+        function renderResult(score, factors) {
+            const resCard = document.getElementById('result-card');
+            const resStatus = document.getElementById('res-status');
+            const scoreVal = document.getElementById('res-score-val');
+            const scoreFill = document.getElementById('res-score-fill');
+            const factorsList = document.getElementById('res-factors');
+            const d = dict[currentLang];
+
+            resCard.style.display = 'block';
+            
+            // Limit score 0-100
+            score = Math.max(0, Math.min(100, score));
+
+            if(score >= 55) {
+                resStatus.textContent = d.approved;
+                resStatus.className = 'result-status status-approved';
+                scoreFill.style.background = 'var(--gold-grad)';
+                scoreFill.style.boxShadow = '0 0 15px rgba(245, 197, 24, 0.5)';
+            } else {
+                resStatus.textContent = d.rejected;
+                resStatus.className = 'result-status status-rejected';
+                scoreFill.style.background = 'var(--red)';
+                scoreFill.style.boxShadow = '0 0 15px rgba(255, 68, 68, 0.5)';
+            }
+
+            scoreVal.textContent = score + '/100';
+            setTimeout(() => scoreFill.style.width = score + '%', 100);
+
+            // Sort factors by absolute impact and take top 4
+            factors.sort((a, b) => Math.abs(b.pts) - Math.abs(a.pts));
+            const top4 = factors.slice(0, 4);
+            
+            factorsList.innerHTML = '';
+            top4.forEach(f => {
+                const li = document.createElement('li');
+                const icon = document.createElement('span');
+                icon.className = 'icon';
+                icon.innerHTML = '✦';
+                const text = document.createElement('span');
+                text.textContent = d[f.key];
+                li.appendChild(icon);
+                li.appendChild(text);
+                factorsList.appendChild(li);
+            });
+        }
+
+        loanForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Sync simulators
+            simInc.value = fAppInc.value;
+            simLoan.value = fLoanAmt.value;
+            document.getElementById('sim_inc_val').textContent = Number(simInc.value).toLocaleString('en-IN');
+            document.getElementById('sim_loan_val').textContent = Number(simLoan.value).toLocaleString('en-IN');
+            
+            calculateScore();
+            setTimeout(() => document.getElementById('result-card').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+        });
+
+        // --- SIMULATOR SYNC ---
+        simInc.addEventListener('input', (e) => {
+            fAppInc.value = e.target.value;
+            document.getElementById('sim_inc_val').textContent = Number(e.target.value).toLocaleString('en-IN');
+            calculateScore();
+        });
+
+        simLoan.addEventListener('input', (e) => {
+            fLoanAmt.value = e.target.value;
+            document.getElementById('sim_loan_val').textContent = Number(e.target.value).toLocaleString('en-IN');
+            calculateScore();
+        });
+
+        fAppInc.addEventListener('input', (e) => {
+            simInc.value = e.target.value;
+            document.getElementById('sim_inc_val').textContent = Number(e.target.value).toLocaleString('en-IN');
+        });
+
+        fLoanAmt.addEventListener('input', (e) => {
+            simLoan.value = e.target.value;
+            document.getElementById('sim_loan_val').textContent = Number(e.target.value).toLocaleString('en-IN');
+        });
+
+    </script>
+</body>
+</html>
